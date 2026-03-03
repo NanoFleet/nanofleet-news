@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NanoFleet News</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      color: #171717;
+      background: #fafafa;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    #header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 52px;
+      border-bottom: 1px solid #e5e5e5;
+      background: #fff;
+      flex-shrink: 0;
+    }
+    #header h1 { font-size: 15px; font-weight: 600; }
+    #header .subtitle { font-size: 12px; color: #737373; margin-left: 8px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s;
+    }
+    .btn-primary { background: #171717; color: #fff; }
+    .btn-primary:hover { background: #404040; }
+    .btn-secondary { background: #f5f5f5; color: #171717; border: 1px solid #e5e5e5; }
+    .btn-secondary:hover { background: #e5e5e5; }
+    .btn-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Tabs ── */
+    #tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 20px;
+      border-bottom: 1px solid #e5e5e5;
+      background: #fff;
+      flex-shrink: 0;
+    }
+    .tab {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #737373;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.15s;
+    }
+    .tab:hover { color: #171717; }
+    .tab.active { color: #171717; border-bottom-color: #171717; }
+
+    /* ── Content ── */
+    #content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 20px;
+    }
+
+    .section { display: none; max-width: 640px; }
+    .section.active { display: block; }
+
+    /* ── Form ── */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #525252;
+    }
+    .form-group .hint {
+      font-size: 11px;
+      color: #a3a3a3;
+      margin-top: 3px;
+    }
+    .form-group input,
+    .form-group select {
+      padding: 8px 10px;
+      border: 1px solid #e5e5e5;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #171717;
+      background: #fff;
+      width: 100%;
+    }
+    .form-group input:focus,
+    .form-group select:focus { outline: none; border-color: #a3a3a3; }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .toggle-label { font-size: 13px; font-weight: 500; color: #171717; }
+    .toggle-sub { font-size: 11px; color: #737373; margin-top: 1px; }
+
+    .switch { position: relative; width: 36px; height: 20px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; inset: 0;
+      background: #d4d4d4;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .slider:before {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      left: 3px; top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .switch input:checked + .slider { background: #171717; }
+    .switch input:checked + .slider:before { transform: translateX(16px); }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+
+    /* ── Categories & Feeds ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-title { font-size: 13px; font-weight: 600; color: #171717; }
+
+    .category-block {
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      background: #fff;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .category-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: #f5f5f5;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    .category-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #171717;
+    }
+    .category-actions { display: flex; gap: 6px; }
+
+    .feed-list { padding: 6px 0; }
+    .feed-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 14px;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .feed-item:last-child { border-bottom: none; }
+    .feed-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .feed-name { font-size: 13px; color: #171717; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .feed-url { font-size: 11px; color: #a3a3a3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .empty-feeds { padding: 12px 14px; font-size: 12px; color: #a3a3a3; }
+
+    /* ── History ── */
+    .digest-list { display: flex; flex-direction: column; gap: 8px; }
+    .digest-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+    }
+    .digest-info { display: flex; flex-direction: column; gap: 2px; }
+    .digest-filename { font-size: 13px; font-weight: 500; color: #171717; }
+    .digest-date { font-size: 11px; color: #a3a3a3; }
+    .empty-state { font-size: 13px; color: #a3a3a3; padding: 16px 0; }
+
+    /* ── Modal ── */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.4);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+    }
+    #modal-overlay.open { display: flex; }
+    #modal {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      width: 400px;
+      max-width: calc(100vw - 32px);
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    #modal h2 { font-size: 15px; font-weight: 600; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #171717;
+      color: #fff;
+      font-size: 13px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      z-index: 100;
+    }
+    #toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <h1>News</h1>
+    <span class="subtitle">Daily digest</span>
+  </div>
+  <button class="btn btn-primary" id="generate-btn">Generate now</button>
+</div>
+
+<div id="tabs">
+  <div class="tab active" data-tab="config">Configuration</div>
+  <div class="tab" data-tab="sources">Sources</div>
+  <div class="tab" data-tab="history">History</div>
+</div>
+
+<div id="content">
+
+  <!-- ── Config ── -->
+  <div class="section active" id="tab-config">
+    <div class="form-group">
+      <label>Agent</label>
+      <select id="agent-select">
+        <option value="">Loading agents…</option>
+      </select>
+      <span class="hint">The agent that will receive the "generate digest" instruction.</span>
+    </div>
+
+    <div class="form-group">
+      <label>Schedule (cron)</label>
+      <input type="text" id="cron-input" placeholder="0 7 * * *" />
+      <span class="hint">Standard 5-field cron expression. <code>0 7 * * *</code> = every day at 7:00 AM.</span>
+    </div>
+
+    <div class="form-group">
+      <label>Timezone</label>
+      <input type="text" id="timezone-input" placeholder="UTC" />
+      <span class="hint">IANA timezone, e.g. <code>Europe/Paris</code>, <code>America/New_York</code>.</span>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-label">Enable scheduler</div>
+        <div class="toggle-sub">The digest will be generated automatically at the scheduled time.</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="enabled-toggle" />
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" id="save-config-btn">Save configuration</button>
+    </div>
+  </div>
+
+  <!-- ── Sources ── -->
+  <div class="section" id="tab-sources">
+    <div class="section-header">
+      <span class="section-title">Categories & RSS feeds</span>
+      <button class="btn btn-secondary btn-sm" id="add-category-btn">+ Add category</button>
+    </div>
+    <div id="categories-list"></div>
+  </div>
+
+  <!-- ── History ── -->
+  <div class="section" id="tab-history">
+    <div class="section-header">
+      <span class="section-title">Generated digests</span>
+      <button class="btn btn-secondary btn-sm" id="refresh-history-btn">Refresh</button>
+    </div>
+    <div class="digest-list" id="digest-list"></div>
+  </div>
+
+</div>
+
+<!-- Modal (shared for add category / add feed) -->
+<div id="modal-overlay">
+  <div id="modal">
+    <h2 id="modal-title">Add category</h2>
+    <div class="form-group" id="modal-fields"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+      <button class="btn btn-primary" id="modal-confirm">Add</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const BASE = window.location.origin + window.location.pathname.replace(/\/$/, '');
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  let agents = [];
+  let categories = [];
+  let feeds = [];
+  let modalAction = null;
+
+  // ── Utils ──────────────────────────────────────────────────────────────────
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function fmt(ts) {
+    return new Date(ts).toLocaleString(undefined, {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+  }
+
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  // ── API ────────────────────────────────────────────────────────────────────
+  async function api(method, path, body) {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body !== undefined) opts.body = JSON.stringify(body);
+    const r = await fetch(BASE + path, opts);
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  }
+
+  // ── Tabs ───────────────────────────────────────────────────────────────────
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ── Config ─────────────────────────────────────────────────────────────────
+  async function loadConfig() {
+    try {
+      const [configData, agentsData] = await Promise.all([
+        api('GET', '/config'),
+        api('GET', '/agents'),
+      ]);
+
+      agents = agentsData.agents || [];
+      const cfg = configData.config;
+
+      // Populate agent select
+      const sel = document.getElementById('agent-select');
+      if (agents.length === 0) {
+        sel.innerHTML = '<option value="">No running agents</option>';
+      } else {
+        sel.innerHTML = agents
+          .map(a => `<option value="${escHtml(a.id)}" ${a.id === cfg.agent_id ? 'selected' : ''}>${escHtml(a.name)}</option>`)
+          .join('');
+      }
+
+      document.getElementById('cron-input').value = cfg.cron_expression || '0 7 * * *';
+      document.getElementById('timezone-input').value = cfg.timezone || 'UTC';
+      document.getElementById('enabled-toggle').checked = cfg.enabled;
+    } catch (err) {
+      toast('Failed to load config: ' + err.message);
+    }
+  }
+
+  function isValidCron(expr) {
+    const field = '(\\*|\\d+(-\\d+)?(,\\d+(-\\d+)?)*(\/\\d+)?|\\*\/\\d+)';
+    return new RegExp(`^${field}\\s+${field}\\s+${field}\\s+${field}\\s+${field}$`).test(expr.trim());
+  }
+
+  document.getElementById('save-config-btn').addEventListener('click', async () => {
+    const cron = document.getElementById('cron-input').value.trim();
+    if (!isValidCron(cron)) {
+      toast('Invalid cron expression (e.g. 0 7 * * *)');
+      return;
+    }
+    const btn = document.getElementById('save-config-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    try {
+      await api('PUT', '/config', {
+        agent_id: document.getElementById('agent-select').value,
+        cron_expression: cron,
+        timezone: document.getElementById('timezone-input').value.trim() || 'UTC',
+        enabled: document.getElementById('enabled-toggle').checked,
+      });
+      toast('Configuration saved.');
+    } catch (err) {
+      toast('Error: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Save configuration';
+    }
+  });
+
+  // ── Sources ────────────────────────────────────────────────────────────────
+  async function loadSources() {
+    try {
+      const [catData, feedData] = await Promise.all([
+        api('GET', '/categories'),
+        api('GET', '/feeds'),
+      ]);
+      categories = catData.categories || [];
+      feeds = feedData.feeds || [];
+      renderSources();
+    } catch (err) {
+      toast('Failed to load sources: ' + err.message);
+    }
+  }
+
+  function renderSources() {
+    const container = document.getElementById('categories-list');
+    if (categories.length === 0) {
+      container.innerHTML = '<p class="empty-state">No categories yet. Add one to get started.</p>';
+      return;
+    }
+
+    container.innerHTML = categories.map(cat => {
+      const catFeeds = feeds.filter(f => f.category_id === cat.id);
+      const feedsHtml = catFeeds.length === 0
+        ? '<div class="empty-feeds">No feeds yet.</div>'
+        : catFeeds.map(f => `
+            <div class="feed-item" data-feed-id="${escHtml(f.id)}">
+              <div class="feed-info">
+                <span class="feed-name">${escHtml(f.name)}</span>
+                <span class="feed-url">${escHtml(f.url)}</span>
+              </div>
+              <button class="btn btn-danger btn-sm delete-feed-btn" data-id="${escHtml(f.id)}">Remove</button>
+            </div>
+          `).join('');
+
+      return `
+        <div class="category-block" data-cat-id="${escHtml(cat.id)}">
+          <div class="category-head">
+            <div>
+              <span class="category-name">${escHtml(cat.name)}</span>
+              <span style="font-size:11px;color:#a3a3a3;margin-left:8px;">max ${escHtml(cat.max_articles)} articles/feed</span>
+            </div>
+            <div class="category-actions">
+              <button class="btn btn-secondary btn-sm add-feed-btn" data-id="${escHtml(cat.id)}" data-name="${escHtml(cat.name)}">+ Add feed</button>
+              <button class="btn btn-danger btn-sm delete-cat-btn" data-id="${escHtml(cat.id)}">Delete</button>
+            </div>
+          </div>
+          <div class="feed-list">${feedsHtml}</div>
+        </div>
+      `;
+    }).join('');
+
+    // Bind delete category
+    container.querySelectorAll('.delete-cat-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Delete this category and all its feeds?')) return;
+        try {
+          await api('DELETE', '/categories/' + btn.dataset.id);
+          await loadSources();
+        } catch (err) { toast('Error: ' + err.message); }
+      });
+    });
+
+    // Bind add feed
+    container.querySelectorAll('.add-feed-btn').forEach(btn => {
+      btn.addEventListener('click', () => openAddFeedModal(btn.dataset.id, btn.dataset.name));
+    });
+
+    // Bind delete feed
+    container.querySelectorAll('.delete-feed-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        try {
+          await api('DELETE', '/feeds/' + btn.dataset.id);
+          await loadSources();
+        } catch (err) { toast('Error: ' + err.message); }
+      });
+    });
+  }
+
+  // ── Add Category Modal ─────────────────────────────────────────────────────
+  document.getElementById('add-category-btn').addEventListener('click', () => {
+    document.getElementById('modal-title').textContent = 'Add category';
+    document.getElementById('modal-fields').innerHTML = `
+      <label>Name</label>
+      <input type="text" id="modal-cat-name" placeholder="e.g. Technology" style="margin-bottom:10px" />
+      <label style="margin-top:4px">Max articles per feed</label>
+      <input type="number" id="modal-cat-max" placeholder="10" min="1" max="100" value="10" />
+    `;
+    document.getElementById('modal-confirm').textContent = 'Add';
+    modalAction = async () => {
+      const name = document.getElementById('modal-cat-name').value.trim();
+      if (!name) { toast('Name is required.'); return false; }
+      const max_articles = parseInt(document.getElementById('modal-cat-max').value, 10) || 10;
+      await api('POST', '/categories', { name, max_articles });
+      await loadSources();
+      return true;
+    };
+    openModal();
+    setTimeout(() => document.getElementById('modal-cat-name')?.focus(), 50);
+  });
+
+  // ── Add Feed Modal ─────────────────────────────────────────────────────────
+  function openAddFeedModal(categoryId, categoryName) {
+    document.getElementById('modal-title').textContent = `Add feed to "${categoryName}"`;
+    document.getElementById('modal-fields').innerHTML = `
+      <label>Feed name</label>
+      <input type="text" id="modal-feed-name" placeholder="e.g. Hacker News" style="margin-bottom:10px" />
+      <label style="margin-top:4px">RSS URL</label>
+      <input type="url" id="modal-feed-url" placeholder="https://…/feed.xml" />
+    `;
+    document.getElementById('modal-confirm').textContent = 'Add';
+    modalAction = async () => {
+      const name = document.getElementById('modal-feed-name').value.trim();
+      const url = document.getElementById('modal-feed-url').value.trim();
+      if (!name || !url) { toast('Name and URL are required.'); return false; }
+      await api('POST', '/feeds', { category_id: categoryId, name, url });
+      await loadSources();
+      return true;
+    };
+    openModal();
+    setTimeout(() => document.getElementById('modal-feed-name')?.focus(), 50);
+  }
+
+  // ── Modal helpers ──────────────────────────────────────────────────────────
+  function openModal() {
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    modalAction = null;
+  }
+
+  document.getElementById('modal-cancel').addEventListener('click', closeModal);
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  });
+  document.getElementById('modal-confirm').addEventListener('click', async () => {
+    if (!modalAction) return;
+    const btn = document.getElementById('modal-confirm');
+    btn.disabled = true;
+    try {
+      const ok = await modalAction();
+      if (ok) closeModal();
+    } catch (err) {
+      toast('Error: ' + err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // ── History ────────────────────────────────────────────────────────────────
+  async function loadHistory() {
+    try {
+      const data = await api('GET', '/digests');
+      const digests = data.digests || [];
+      const container = document.getElementById('digest-list');
+
+      if (digests.length === 0) {
+        container.innerHTML = '<p class="empty-state">No digests generated yet.</p>';
+        return;
+      }
+
+      container.innerHTML = digests.map(d => `
+        <div class="digest-item">
+          <div class="digest-info">
+            <span class="digest-filename">${escHtml(d.filename)}</span>
+            <span class="digest-date">${fmt(d.generated_at)}</span>
+          </div>
+          <a class="btn btn-secondary btn-sm" href="${BASE}/digests/${escHtml(d.filename)}" target="_blank">View PDF</a>
+        </div>
+      `).join('');
+    } catch (err) {
+      toast('Failed to load history: ' + err.message);
+    }
+  }
+
+  document.getElementById('refresh-history-btn').addEventListener('click', loadHistory);
+
+  // ── Generate now ───────────────────────────────────────────────────────────
+  document.getElementById('generate-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('generate-btn');
+    btn.disabled = true;
+    btn.textContent = 'Generating…';
+    try {
+      await api('POST', '/digests/generate');
+      toast('Generation started — check History in a moment.');
+      setTimeout(loadHistory, 4000);
+    } catch (err) {
+      toast('Error: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Generate now';
+    }
+  });
+
+  // ── Boot ───────────────────────────────────────────────────────────────────
+  async function init() {
+    await Promise.all([loadConfig(), loadSources(), loadHistory()]);
+  }
+
+  init();
+</script>
+</body>
+</html>

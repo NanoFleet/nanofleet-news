@@ -1,0 +1,23 @@
+{
+  "name": "nanofleet-news",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "start": "bun run src/index.ts",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "hono": "^4.0.0",
+    "node-cron": "^3.0.3",
+    "pdf-lib": "^1.17.1",
+    "rss-parser": "^3.13.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.4",
+    "@types/bun": "latest",
+    "@types/node-cron": "^3.0.11"
+  }
+}

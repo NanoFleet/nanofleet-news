@@ -1,0 +1,16 @@
+{
+  "name": "nanofleet-news",
+  "version": "0.0.1",
+  "description": "Daily news digest — generates a PDF newspaper from RSS feeds and delivers it to your channel every morning",
+  "author": "NanoFleet",
+  "image": "ghcr.io/nanofleet/nanofleet-news:latest",
+  "mcpPort": 8831,
+  "uiPort": 8830,
+  "requiredEnvVars": [],
+  "sidebar": {
+    "icon": "BookOpen",
+    "label": "News",
+    "route": "/plugins/nanofleet-news/ui"
+  },
+  "toolsDoc": "## nanofleet-news — Daily News Digest\n\nThis plugin generates a PDF newspaper from RSS feeds every morning and delivers it to the configured channel.\n\n### generate_digest\nManually trigger the generation and delivery of the news digest. Use this when the user asks to generate the journal now.\n\n### list_digests\nList previously generated digests (id, date, filename)."
+}
